@@ -3,7 +3,7 @@ from glob import glob
 
 import cv2
 
-window_name = 'img'
+win_name = 'img'
 boxes = []
 start_xy = (0, 0)
 color = (0, 0, 255)
@@ -12,8 +12,8 @@ thickness = 2
 
 def draw_boxes(img):
     for r in boxes:
-        x, y, w, h = r[0], r[1], r[2], r[3]
-        cv2.rectangle(img, (x, y), (x + w, y + h), color, thickness)
+        box_x, box_y, box_w, box_h = r[0], r[1], r[2], r[3]
+        cv2.rectangle(img, (box_x, box_y), (box_x + box_w, box_y + box_h), color, thickness)
 
 
 def mouse_callback(event, cur_x, cur_y, flag, _):
@@ -28,7 +28,7 @@ def mouse_callback(event, cur_x, cur_y, flag, _):
     elif event == 0 and flag == 1:
         draw_boxes(copy)
         cv2.rectangle(copy, start_xy, (cur_x, cur_y), color, thickness)
-        cv2.imshow(window_name, copy)
+        cv2.imshow(win_name, copy)
 
     # end click
     elif event == 4 and flag == 0:
@@ -43,30 +43,9 @@ def mouse_callback(event, cur_x, cur_y, flag, _):
     elif event == 5 and flag == 0:
         if len(boxes) > 0:
             boxes.pop()
-        copy = raw.copy()
-        draw_boxes(copy)
-        cv2.imshow(window_name, copy)
+            draw_boxes(copy)
+            cv2.imshow(win_name, copy)
         print(boxes)
-
-    # double click or scrolling
-    elif (event == 7 and flag == 1) or (event == 10):
-        if len(boxes) == 0:
-            return
-        normalized_boxes = []
-        for b in boxes:
-            x, y, w, h = b[0], b[1], b[2], b[3]
-            x = int(x / ratio)
-            y = int(y / ratio)
-            w = int(w / ratio)
-            h = int(h / ratio)
-            normalized_boxes.append([x, y, w, h])
-        save_file_path = f'{path + file_name_without_extension}.txt'
-        file = open(save_file_path, mode='wt', encoding='utf-8')
-        file.write(str(normalized_boxes))
-        print(f'saved {len(boxes)} boxes to {save_file_path}')
-        copy = raw.copy()
-        cv2.imshow(window_name, copy)
-        boxes = []
 
 
 path = ''
@@ -87,10 +66,37 @@ if len(jpg_file_paths) == 0 and len(png_file_paths) == 0:
     sys.exit(0)
 
 for file_path in jpg_file_paths + png_file_paths:
-    file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
-    raw = cv2.imread(file_path, cv2.IMREAD_ANYCOLOR)
-    cv2.namedWindow('img')
-    cv2.setMouseCallback('img', mouse_callback)
-    raw = cv2.resize(raw, (0, 0), fx=ratio, fy=ratio)
-    cv2.imshow(window_name, raw)
-    cv2.waitKey(0)
+    while True:
+        file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
+        raw = cv2.imread(file_path, cv2.IMREAD_ANYCOLOR)
+        raw = cv2.resize(raw, (0, 0), fx=ratio, fy=ratio)
+        cv2.namedWindow(win_name)
+        cv2.setMouseCallback(win_name, mouse_callback)
+        recover_if_continue = raw.copy()
+        draw_boxes(recover_if_continue)
+        cv2.imshow(win_name, recover_if_continue)
+        res = cv2.waitKey(0)
+
+        # save if input key was 's' or continue if key was 'c'
+        if res == 115 or res == 99:
+            if res == 115 and len(boxes) == 0:
+                print('No boxes to save')
+            elif res == 115 and len(boxes) > 0:
+
+                # normalize x, y, width, height by resizing ratio
+                normalized_boxes = []
+                for b in boxes:
+                    x, y, w, h = b[0], b[1], b[2], b[3]
+                    x = int(x / ratio)
+                    y = int(y / ratio)
+                    w = int(w / ratio)
+                    h = int(h / ratio)
+                    normalized_boxes.append([x, y, w, h])
+                save_file_path = f'{path + file_name_without_extension}.txt'
+                file = open(save_file_path, mode='wt', encoding='utf-8')
+                file.write(str(normalized_boxes))
+                print(f'saved {len(boxes)} boxes to {save_file_path}')
+            elif res == 99:
+                print(f'Continue image {file_name_without_extension}')
+            boxes = []
+            break
