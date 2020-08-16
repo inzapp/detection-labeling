@@ -13,7 +13,7 @@ Or drag label.py to img_path and
 $ python label.py . resizing_ratio
 ```
 
-## Double click or scroll to save boxes
+## Press 's' to save boxes or 'c' to continue image
 <img src="/preview/1.gif" alt="" width="600">
 
 ## Right click to erase last box
