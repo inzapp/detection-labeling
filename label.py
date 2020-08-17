@@ -68,55 +68,54 @@ if len(jpg_file_paths) == 0 and len(png_file_paths) == 0:
 index = 0
 img_paths = jpg_file_paths + png_file_paths
 while True:
-    while True:
-        file_path = img_paths[index]
-        file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
-        raw = cv2.imread(file_path, cv2.IMREAD_ANYCOLOR)
-        raw = cv2.resize(raw, (0, 0), fx=ratio, fy=ratio)
-        cv2.namedWindow(win_name)
-        cv2.setMouseCallback(win_name, mouse_callback)
-        recover_if_continue = raw.copy()
-        draw_boxes(recover_if_continue)
-        cv2.imshow(win_name, recover_if_continue)
-        res = cv2.waitKey(0)
+    file_path = img_paths[index]
+    file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
+    raw = cv2.imread(file_path, cv2.IMREAD_ANYCOLOR)
+    raw = cv2.resize(raw, (0, 0), fx=ratio, fy=ratio)
+    cv2.namedWindow(win_name)
+    cv2.setMouseCallback(win_name, mouse_callback)
+    recover_if_continue = raw.copy()
+    draw_boxes(recover_if_continue)
+    cv2.imshow(win_name, recover_if_continue)
+    res = cv2.waitKey(0)
 
-        # save if input key was 's' or continue if key was 'c'
-        if res == 115 or res == 99:
-            if res == 115:
-                if len(boxes) == 0:
-                    print('No boxes to save')
-                else:
-                    # normalize x, y, width, height by resizing ratio
-                    normalized_boxes = []
-                    for b in boxes:
-                        x, y, w, h = b[0], b[1], b[2], b[3]
-                        x = int(x / ratio)
-                        y = int(y / ratio)
-                        w = int(w / ratio)
-                        h = int(h / ratio)
-                        normalized_boxes.append([x, y, w, h])
-                    save_file_path = f'{path + file_name_without_extension}.txt'
-                    file = open(save_file_path, mode='wt', encoding='utf-8')
-                    file.write(str(normalized_boxes))
-                    print(f'saved {len(boxes)} boxes to {save_file_path}')
-            elif res == 99:
-                print(f'Continue image {file_name_without_extension}')
-            boxes = []
-            index += 1
-            if index == len(img_paths):
-                sys.exit()
-            break
-
-        # go to previous image if input key was 'b'
-        elif res == 98:
-            if index == 0:
-                print('Current image is first image')
+    # save if input key was 's' or continue if key was 'c'
+    if res == 115 or res == 99:
+        if res == 115:
+            if len(boxes) == 0:
+                print('No boxes to save')
             else:
-                print(f'Previous image {file_name_without_extension}')
-                boxes = []
-                index -= 1
+                # normalize x, y, width, height by resizing ratio
+                normalized_boxes = []
+                for b in boxes:
+                    x, y, w, h = b[0], b[1], b[2], b[3]
+                    x = int(x / ratio)
+                    y = int(y / ratio)
+                    w = int(w / ratio)
+                    h = int(h / ratio)
+                    normalized_boxes.append([x, y, w, h])
+                save_file_path = f'{path + file_name_without_extension}.txt'
+                file = open(save_file_path, mode='wt', encoding='utf-8')
+                file.write(str(normalized_boxes))
+                print(f'saved {len(boxes)} boxes to {save_file_path}')
+        elif res == 99:
+            print(f'Continue image {file_name_without_extension}')
 
-        # exit if input key was ESC
-        elif res == 27:
-            sys.exit()
+        boxes = []
+        if index == len(img_paths) - 1:
+            print('Current image is final image')
+            continue
+        index += 1
 
+    # go to previous image if input key was 'b'
+    elif res == 98:
+        if index == 0:
+            print('Current image is first image')
+        else:
+            print(f'Previous image {file_name_without_extension}')
+            boxes = []
+            index -= 1
+
+    # exit if input key was ESC
+    elif res == 27:
+        sys.exit()
