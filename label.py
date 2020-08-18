@@ -61,12 +61,12 @@ if len(sys.argv) > 1:
 
 jpg_file_paths = glob(f'{path}*.jpg')
 png_file_paths = glob(f'{path}*.png')
-if len(jpg_file_paths) == 0 and len(png_file_paths) == 0:
+img_paths = jpg_file_paths + png_file_paths
+if len(img_paths) == 0:
     print('No image files in path. run label.py with path argument')
     sys.exit(0)
 
 index = 0
-img_paths = jpg_file_paths + png_file_paths
 while True:
     file_path = img_paths[index]
     file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
@@ -97,14 +97,14 @@ while True:
                 save_file_path = f'{path + file_name_without_extension}.txt'
                 file = open(save_file_path, mode='wt', encoding='utf-8')
                 file.write(str(normalized_boxes))
+                file.close()
                 print(f'saved {len(boxes)} boxes to {save_file_path}')
         elif res == 99:
             print(f'Continue image {file_name_without_extension}')
 
         boxes = []
         if index == len(img_paths) - 1:
-            print('Current image is final image')
-            continue
+            sys.exit()
         index += 1
 
     # go to previous image if input key was 'b'
