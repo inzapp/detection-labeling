@@ -1,7 +1,9 @@
+import os
 import sys
 from glob import glob
 
 import cv2
+import numpy as np
 
 win_name = 'img'
 boxes = []
@@ -66,11 +68,15 @@ if len(img_paths) == 0:
     print('No image files in path. run label.py with path argument')
     sys.exit(0)
 
+if path == '':
+    path = '.'
+    
 index = 0
 while True:
     file_path = img_paths[index]
     file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
     raw = cv2.imread(file_path, cv2.IMREAD_ANYCOLOR)
+    raw_shape = raw.shape
     raw = cv2.resize(raw, (0, 0), fx=ratio, fy=ratio)
     cv2.namedWindow(win_name)
     cv2.setMouseCallback(win_name, mouse_callback)
@@ -94,7 +100,22 @@ while True:
                     w = int(w / ratio)
                     h = int(h / ratio)
                     normalized_boxes.append([x, y, w, h])
-                save_file_path = f'{path + file_name_without_extension}.txt'
+
+                # create label dir if not exist
+                label_dir_path = f'{path}/label'
+                os.makedirs(label_dir_path, exist_ok=True)
+
+                # save mask image
+                save_masking_img_path = f'{label_dir_path}/{file_name_without_extension}.jpg'
+                mask = np.zeros((raw_shape[0], raw_shape[1]), dtype=np.uint8)
+                for r in normalized_boxes:
+                    x, y, w, h = r[0], r[1], r[2], r[3]
+                    cv2.rectangle(mask, (x, y), (x + w, y + h), (255, 255, 255), -1)
+                cv2.imwrite(save_masking_img_path, mask)
+                print(f'saved mask image to {save_masking_img_path}')
+
+                # save label box to txt
+                save_file_path = f'{label_dir_path}/{file_name_without_extension}.txt'
                 file = open(save_file_path, mode='wt', encoding='utf-8')
                 file.write(str(normalized_boxes))
                 file.close()
