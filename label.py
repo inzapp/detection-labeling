@@ -36,7 +36,7 @@ def mouse_callback(event, cur_x, cur_y, flag, _):
         height = cur_y - start_xy[1]
         if width == 0 or height == 0:
             return
-        boxes.append([start_xy[0], start_xy[1], cur_x - start_xy[0], cur_y - start_xy[1]])
+        boxes.append([start_xy[0], start_xy[1], width, height])
         print(boxes)
 
     # right click
@@ -71,6 +71,7 @@ while True:
     file_path = img_paths[index]
     file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
     raw = cv2.imread(file_path, cv2.IMREAD_ANYCOLOR)
+    raw_width, raw_height = raw.shape[1], raw.shape[0]
     raw = cv2.resize(raw, (0, 0), fx=ratio, fy=ratio)
     cv2.namedWindow(win_name)
     cv2.setMouseCallback(win_name, mouse_callback)
@@ -89,15 +90,30 @@ while True:
                 normalized_boxes = []
                 for b in boxes:
                     x, y, w, h = b[0], b[1], b[2], b[3]
-                    x = int(x / ratio)
-                    y = int(y / ratio)
-                    w = int(w / ratio)
-                    h = int(h / ratio)
-                    normalized_boxes.append([x, y, w, h])
+
+                    # recover scale
+                    x = x / ratio
+                    y = y / ratio
+                    w = w / ratio
+                    h = h / ratio
+
+                    # convert x, y to center x, center y of each rect
+                    x = x + w / 2
+                    y = y + h / 2
+
+                    # normalize by width, height
+                    x = x / raw_width
+                    y = y / raw_height
+                    w = w / raw_width
+                    h = h / raw_height
+
+                    normalized_boxes.append(x)
+                    normalized_boxes.append(y)
+                    normalized_boxes.append(w)
+                    normalized_boxes.append(h)
                 save_file_path = f'{path + file_name_without_extension}.txt'
-                file = open(save_file_path, mode='wt', encoding='utf-8')
-                file.write(str(normalized_boxes))
-                file.close()
+                with open(save_file_path, mode='wt', encoding='utf-8') as file:
+                    file.write(str(normalized_boxes))
                 print(f'saved {len(boxes)} boxes to {save_file_path}')
         elif res == 99:
             print(f'Continue image {file_name_without_extension}')
