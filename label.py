@@ -1,3 +1,4 @@
+import os
 import sys
 from glob import glob
 
@@ -111,7 +112,10 @@ while True:
                     normalized_boxes.append(y)
                     normalized_boxes.append(w)
                     normalized_boxes.append(h)
-                save_file_path = f'{path + file_name_without_extension}.txt'
+
+                label_dir_name = 'label'
+                os.makedirs(label_dir_name, exist_ok=True)
+                save_file_path = f'{label_dir_name}/{path + file_name_without_extension}.txt'
                 with open(save_file_path, mode='wt', encoding='utf-8') as file:
                     file.write(str(normalized_boxes))
                 print(f'saved {len(boxes)} boxes to {save_file_path}')
