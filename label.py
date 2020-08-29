@@ -37,7 +37,8 @@ def mouse_callback(event, cur_x, cur_y, flag, _):
         height = cur_y - start_xy[1]
         if width == 0 or height == 0:
             return
-        boxes.append([start_xy[0], start_xy[1], width, height])
+        # boxes.append([start_xy[0], start_xy[1], width, height]) # x, y, width height
+        boxes.append([start_xy[0], start_xy[1], cur_x, cur_y]) # x1, y1, x2, y2
         print(boxes)
 
     # right click
@@ -90,13 +91,13 @@ while True:
                 # normalize x, y, width, height by resizing ratio
                 normalized_boxes = []
                 for b in boxes:
-                    x, y, w, h = b[0], b[1], b[2], b[3]
+                    x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
 
                     # recover scale
-                    x = int(x / ratio)
-                    y = int(y / ratio)
-                    w = int(w / ratio)
-                    h = int(h / ratio)
+                    x1 = int(x1 / ratio)
+                    y1 = int(y1 / ratio)
+                    x2 = int(x2 / ratio)
+                    y2 = int(y2 / ratio)
 
                     # # convert x, y to center x, center y of each rect
                     # x = x + w / 2
@@ -112,7 +113,7 @@ while True:
                     # normalized_boxes.append(y)
                     # normalized_boxes.append(w)
                     # normalized_boxes.append(h)
-                    normalized_boxes.append([x, y, w, h])
+                    normalized_boxes.append([x1, y1, x2, y2])
 
                 label_dir_name = 'label'
                 os.makedirs(label_dir_name, exist_ok=True)
