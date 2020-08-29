@@ -93,25 +93,26 @@ while True:
                     x, y, w, h = b[0], b[1], b[2], b[3]
 
                     # recover scale
-                    x = x / ratio
-                    y = y / ratio
-                    w = w / ratio
-                    h = h / ratio
+                    x = int(x / ratio)
+                    y = int(y / ratio)
+                    w = int(w / ratio)
+                    h = int(h / ratio)
 
-                    # convert x, y to center x, center y of each rect
-                    x = x + w / 2
-                    y = y + h / 2
+                    # # convert x, y to center x, center y of each rect
+                    # x = x + w / 2
+                    # y = y + h / 2
+                    #
+                    # # normalize by width, height
+                    # x = x / raw_width
+                    # y = y / raw_height
+                    # w = w / raw_width
+                    # h = h / raw_height
 
-                    # normalize by width, height
-                    x = x / raw_width
-                    y = y / raw_height
-                    w = w / raw_width
-                    h = h / raw_height
-
-                    normalized_boxes.append(x)
-                    normalized_boxes.append(y)
-                    normalized_boxes.append(w)
-                    normalized_boxes.append(h)
+                    # normalized_boxes.append(x)
+                    # normalized_boxes.append(y)
+                    # normalized_boxes.append(w)
+                    # normalized_boxes.append(h)
+                    normalized_boxes.append([x, y, w, h])
 
                 label_dir_name = 'label'
                 os.makedirs(label_dir_name, exist_ok=True)
