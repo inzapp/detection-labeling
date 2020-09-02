@@ -37,8 +37,7 @@ def mouse_callback(event, cur_x, cur_y, flag, _):
         height = cur_y - start_xy[1]
         if width == 0 or height == 0:
             return
-        # boxes.append([start_xy[0], start_xy[1], width, height]) # x, y, width height
-        boxes.append([start_xy[0], start_xy[1], cur_x, cur_y]) # x1, y1, x2, y2
+        boxes.append([start_xy[0], start_xy[1], cur_x, cur_y])  # x1, y1, x2, y2
         print(boxes)
 
     # right click
@@ -74,7 +73,8 @@ while True:
     file_name_without_extension = file_path.replace('\\', '/').split('/').pop().split('.')[0]
     raw = cv2.imread(file_path, cv2.IMREAD_ANYCOLOR)
     raw_width, raw_height = raw.shape[1], raw.shape[0]
-    raw = cv2.resize(raw, (0, 0), fx=ratio, fy=ratio)
+    scaled_width, scaled_height = int(raw_width * ratio), int(raw_height * ratio)
+    raw = cv2.resize(raw, (scaled_width, scaled_height))
     cv2.namedWindow(win_name)
     cv2.setMouseCallback(win_name, mouse_callback)
     recover_if_continue = raw.copy()
@@ -92,27 +92,10 @@ while True:
                 normalized_boxes = []
                 for b in boxes:
                     x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
-
-                    # recover scale
-                    x1 = int(x1 / ratio)
-                    y1 = int(y1 / ratio)
-                    x2 = int(x2 / ratio)
-                    y2 = int(y2 / ratio)
-
-                    # # convert x, y to center x, center y of each rect
-                    # x = x + w / 2
-                    # y = y + h / 2
-                    #
-                    # # normalize by width, height
-                    # x = x / raw_width
-                    # y = y / raw_height
-                    # w = w / raw_width
-                    # h = h / raw_height
-
-                    # normalized_boxes.append(x)
-                    # normalized_boxes.append(y)
-                    # normalized_boxes.append(w)
-                    # normalized_boxes.append(h)
+                    x1 = x1 / scaled_width
+                    y1 = y1 / scaled_height
+                    x2 = x2 / scaled_width
+                    y2 = y2 / scaled_height
                     normalized_boxes.append([x1, y1, x2, y2])
 
                 label_dir_name = 'label'
