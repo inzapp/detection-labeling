@@ -13,8 +13,8 @@ thickness = 2
 
 def draw_boxes(img):
     for r in boxes:
-        box_x, box_y, box_w, box_h = r[0], r[1], r[2], r[3]
-        cv2.rectangle(img, (box_x, box_y), (box_x + box_w, box_y + box_h), color, thickness)
+        box_x1, box_y1, box_x2, box_y2 = r[0], r[1], r[2], r[3]
+        cv2.rectangle(img, (box_x1, box_y1), (box_x2, box_y2), color, thickness)
 
 
 def mouse_callback(event, cur_x, cur_y, flag, _):
